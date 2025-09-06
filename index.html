@@ -2,45 +2,45 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>Hostel Reception Dashboard</title>
+  <title>Receptionist - Shift & Payments</title>
   <style>
     body {
-      margin: 0;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background: url('https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=1500&q=80') no-repeat center center fixed;
       background-size: cover;
+      margin: 0;
+      padding: 0;
       color: #fff;
     }
 
     .container {
-      max-width: 800px;
+      max-width: 720px;
       margin: 40px auto;
-      padding: 20px 30px;
       background: rgba(255, 255, 255, 0.1);
-      border-radius: 15px;
+      border-radius: 16px;
+      padding: 30px;
       backdrop-filter: blur(10px);
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
     }
 
     h1, h2 {
       text-align: center;
+      margin-bottom: 20px;
       color: #fff;
-      margin-top: 10px;
     }
 
     label {
       display: block;
       margin-top: 15px;
-      font-weight: bold;
-      color: #eee;
+      font-weight: 600;
     }
 
     input, select {
       width: 100%;
       padding: 10px;
-      border-radius: 8px;
-      border: none;
       margin-top: 5px;
+      border: none;
+      border-radius: 8px;
       background: rgba(255, 255, 255, 0.8);
       color: #333;
     }
@@ -71,27 +71,26 @@
 
     .small {
       font-size: 0.9em;
-      color: #ccc;
+      color: #ddd;
       margin-top: 10px;
     }
 
     .banner {
       width: 100%;
-      border-radius: 10px;
-      margin-bottom: 20px;
+      border-radius: 12px;
+      margin-bottom: 30px;
     }
 
     hr {
-      border: 0;
-      height: 1px;
-      background: rgba(255,255,255,0.3);
+      border: none;
+      border-top: 1px solid rgba(255, 255, 255, 0.3);
       margin: 30px 0;
     }
 
     @media (max-width: 600px) {
       .container {
         margin: 20px;
-        padding: 15px;
+        padding: 20px;
       }
     }
   </style>
@@ -99,9 +98,9 @@
 <body>
 
   <div class="container">
-    <img src="https://images.unsplash.com/photo-1551085254-e96b210dbd50?auto=format&fit=crop&w=1350&q=80" class="banner" alt="Hostel Welcome Banner">
+    <img src="https://images.unsplash.com/photo-1551085254-e96b210dbd50?auto=format&fit=crop&w=1350&q=80" class="banner" alt="Hostel Welcome">
 
-    <h1>Receptionist Dashboard</h1>
+    <h1>Receptionist Terminal</h1>
 
     <label>Your name:
       <select id="staff"></select>
@@ -112,21 +111,24 @@
     <div id="shiftInfo" class="small"></div>
 
     <hr>
-
     <h2>New Payment</h2>
+
     <label>Room: <input id="room" placeholder="e.g. 208"></label>
 
     <div id="itemsList"></div>
 
     <label>Payment method:
-      <select id="paymentMethod"><option>cash</option><option>card</option></select>
+      <select id="paymentMethod">
+        <option>cash</option>
+        <option>card</option>
+      </select>
     </label>
 
     <button id="addPaymentBtn">Add Payment</button>
   </div>
 
 <script>
-const WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbzPMEFjP9zxhUHQ8HxgkMRJSP6GFQFIlQ4JTVo2ghNygK__FvYakEdEX6-JiLiVwgZjmw/exec'; // Replace with your URL
+const WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbzPMEFjP9zxhUHQ8HxgkMRJSP6GFQFIlQ4JTVo2ghNygK__FvYakEdEX6-JiLiVwgZjmw/exec'; // <- replace
 
 let currentShiftId = localStorage.getItem('shiftId') || null;
 
@@ -160,8 +162,8 @@ async function loadInitial() {
   const itemsDiv = document.getElementById('itemsList');
   items.forEach((it, idx) => {
     const cb = document.createElement('input');
-    cb.type = 'checkbox';
-    cb.id = 'itm' + idx;
+    cb.type='checkbox';
+    cb.id='itm'+idx;
     cb.dataset.price = it.price;
     cb.dataset.name = it.name;
 
@@ -186,7 +188,7 @@ document.getElementById('startBtn').addEventListener('click', async () => {
     localStorage.setItem('shiftId', currentShiftId);
     document.getElementById('shiftInfo').textContent = 'Shift: ' + res.shiftName + ' (id:' + currentShiftId + ')';
     alert('Shift started: ' + res.shiftName);
-  } else alert('Error: ' + (res.message || 'unknown'));
+  } else alert('Error: ' + (res.message||'unknown'));
 });
 
 document.getElementById('addPaymentBtn').addEventListener('click', async () => {
@@ -194,7 +196,7 @@ document.getElementById('addPaymentBtn').addEventListener('click', async () => {
   const room = document.getElementById('room').value || '';
   const checked = Array.from(document.querySelectorAll('#itemsList input[type=checkbox]:checked'))
     .map(cb => ({name: cb.dataset.name, price: parseFloat(cb.dataset.price)}));
-  const total = checked.reduce((s, it) => s + (it.price || 0), 0);
+  const total = checked.reduce((s,it)=>s + (it.price||0), 0);
   const paymentMethod = document.getElementById('paymentMethod').value;
   const name = document.getElementById('staff').value;
   const res = await api({
@@ -210,7 +212,7 @@ document.getElementById('addPaymentBtn').addEventListener('click', async () => {
     alert('Payment added — total €' + total.toFixed(2));
     document.querySelectorAll('#itemsList input[type=checkbox]').forEach(cb => cb.checked = false);
     document.getElementById('room').value = '';
-  } else alert('Error: ' + (res.message || 'unknown'));
+  } else alert('Error: ' + (res.message||'unknown'));
 });
 
 document.getElementById('endBtn').addEventListener('click', async () => {
@@ -218,11 +220,11 @@ document.getElementById('endBtn').addEventListener('click', async () => {
   const name = document.getElementById('staff').value;
   const res = await api({action:'endShift', shiftId: currentShiftId, name: name});
   if (res.status === 'ok') {
-    alert('Shift closed. Totals — total: €' + (res.report.total || 0).toFixed(2));
+    alert('Shift closed. Totals — total: €' + (res.report.total||0).toFixed(2));
     localStorage.removeItem('shiftId');
     currentShiftId = null;
     document.getElementById('shiftInfo').textContent = '';
-  } else alert('Error: ' + (res.message || 'unknown'));
+  } else alert('Error: ' + (res.message||'unknown'));
 });
 
 loadInitial();
