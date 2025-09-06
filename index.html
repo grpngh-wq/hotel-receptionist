@@ -2,120 +2,32 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>Receptionist - Shift & Payments</title>
+  <title>Hostel Reception Dashboard</title>
   <style>
-    body { font-family: Arial, sans-serif; max-width:720px; margin:20px auto; }
-    label { display:block; margin-top:10px; }
-    .small { font-size:0.9em; color:#666; }
-  </style>
-</head>
-<body>
-  <h1>Receptionist Terminal</h1>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: url('https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=1500&q=80') no-repeat center center fixed;
+      background-size: cover;
+      color: #fff;
+    }
 
-  <label>Your name:
-    <select id="staff"></select>
-  </label>
+    .container {
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 20px 30px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 15px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+    }
 
-  <button id="startBtn">Start Shift</button>
-  <button id="endBtn">End Shift</button>
-  <div id="shiftInfo" class="small"></div>
+    h1, h2 {
+      text-align: center;
+      color: #fff;
+      margin-top: 10px;
+    }
 
-  <hr>
-  <h2>New Payment</h2>
-  <label>Room: <input id="room" placeholder="e.g. 208"></label>
-
-  <div id="itemsList"></div>
-
-  <label>Payment method:
-    <select id="paymentMethod"><option>cash</option><option>card</option></select>
-  </label>
-
-  <button id="addPaymentBtn">Add Payment</button>
-
-<script>
-const WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbzPMEFjP9zxhUHQ8HxgkMRJSP6GFQFIlQ4JTVo2ghNygK__FvYakEdEX6-JiLiVwgZjmw/exec'; // <- replace
-
-let currentShiftId = localStorage.getItem('shiftId') || null;
-
-function encodeForm(data) {
-  return new URLSearchParams(data).toString();
-}
-
-async function api(payload){
-  const body = encodeForm(payload);
-  const res = await fetch(WEBAPP_URL, {
-    method: 'POST',
-    headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-    body: body
-  });
-  return res.json();
-}
-
-async function loadInitial() {
-  const staffRes = await api({action:'getStaff'});
-  const staff = staffRes.staff || [];
-  const staffSel = document.getElementById('staff');
-  staff.forEach(s => { const opt = document.createElement('option'); opt.value = s.name; opt.textContent = s.name; staffSel.appendChild(opt); });
-
-  const invRes = await api({action:'getInventory'});
-  const items = invRes.items || [];
-  const itemsDiv = document.getElementById('itemsList');
-  items.forEach((it, idx) => {
-    const cb = document.createElement('input'); cb.type='checkbox'; cb.id='itm'+idx;
-    cb.dataset.price = it.price; cb.dataset.name = it.name;
-    const label = document.createElement('label'); label.htmlFor = cb.id; label.textContent = it.name + ' — €' + it.price;
-    itemsDiv.appendChild(cb); itemsDiv.appendChild(label); itemsDiv.appendChild(document.createElement('br'));
-  });
-
-  if (currentShiftId) document.getElementById('shiftInfo').textContent = 'Open shift id: ' + currentShiftId;
-}
-
-document.getElementById('startBtn').addEventListener('click', async () => {
-  const name = document.getElementById('staff').value;
-  const res = await api({action:'startShift', name: name});
-  if (res.status === 'ok') {
-    currentShiftId = res.shiftId; localStorage.setItem('shiftId', currentShiftId);
-    document.getElementById('shiftInfo').textContent = 'Shift: ' + res.shiftName + ' (id:' + currentShiftId + ')';
-    alert('Shift started: ' + res.shiftName);
-  } else alert('Error: ' + (res.message||'unknown'));
-});
-
-document.getElementById('addPaymentBtn').addEventListener('click', async () => {
-  if (!currentShiftId) return alert('Start your shift first.');
-  const room = document.getElementById('room').value || '';
-  const checked = Array.from(document.querySelectorAll('#itemsList input[type=checkbox]:checked'))
-    .map(cb => ({name: cb.dataset.name, price: parseFloat(cb.dataset.price)}));
-  const total = checked.reduce((s,it)=>s + (it.price||0), 0);
-  const paymentMethod = document.getElementById('paymentMethod').value;
-  const name = document.getElementById('staff').value;
-  const res = await api({
-    action: 'submitPayment',
-    shiftId: currentShiftId,
-    name: name,
-    room: room,
-    items: JSON.stringify(checked),
-    total: total,
-    paymentMethod: paymentMethod
-  });
-  if (res.status === 'ok') {
-    alert('Payment added — total €' + total.toFixed(2));
-    // uncheck boxes & clear room
-    document.querySelectorAll('#itemsList input[type=checkbox]').forEach(cb => cb.checked = false);
-    document.getElementById('room').value = '';
-  } else alert('Error: ' + (res.message||'unknown'));
-});
-
-document.getElementById('endBtn').addEventListener('click', async () => {
-  if (!currentShiftId) return alert('No open shift to end.');
-  const name = document.getElementById('staff').value;
-  const res = await api({action:'endShift', shiftId: currentShiftId, name: name});
-  if (res.status === 'ok') {
-    alert('Shift closed. Totals — total: €' + (res.report.total||0).toFixed(2));
-    localStorage.removeItem('shiftId'); currentShiftId = null; document.getElementById('shiftInfo').textContent = '';
-  } else alert('Error: ' + (res.message||'unknown'));
-});
-
-loadInitial();
-</script>
-</body>
-</html>
+    label {
+      display: block;
+      margi
